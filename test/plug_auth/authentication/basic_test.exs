@@ -30,7 +30,7 @@ defmodule PlugAuth.Authentication.Basic.Test do
   end
 
   defp auth_header(creds) do
-    {"authorization", "Basic " <> Base.encode64(creds)}
+    {"authorization", "Basic #{Base.encode64(creds)}"}
   end
 
   setup do
@@ -63,7 +63,7 @@ defmodule PlugAuth.Authentication.Basic.Test do
   end
 
   test "request with wrong scheme" do
-    conn = call(TestPlug, [{"authorization", "Bearer " <> Base.encode64("Admin:SecretPass")}])
+    conn = call(TestPlug, [{"authorization", "Bearer #{Base.encode64("Admin:SecretPass")}"}])
     assert_unauthorized conn, "Secret"
   end
 end

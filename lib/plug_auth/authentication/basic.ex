@@ -34,7 +34,7 @@ defmodule PlugAuth.Authentication.Basic do
 
   defp get_auth_header(conn), do: {conn, get_req_header(conn, "authorization")}
 
-  defp decode_creds({conn, ["Basic " <> creds | _]}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
+  defp decode_creds({conn, [<< "Basic ", creds::binary >> | _]}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
   defp decode_creds({conn, _}), do: {conn, nil}
 
   defp assert_creds({conn, nil}, realm), do: halt_with_login(conn, realm)
