@@ -47,7 +47,8 @@ defmodule PlugAuth.Authentication.Token do
   def init(opts) do
     param = Keyword.get(opts, :param)
     source = Keyword.fetch!(opts, :source) |> convert_source(param)
-    %{source: source}
+    error = Keyword.get(opts, :error, "HTTP Authentication Required")
+    %{source: source, error: error}
   end
 
   defp convert_source(:params, param), do: {__MODULE__, :get_token_from_params, [param]}
@@ -64,11 +65,11 @@ defmodule PlugAuth.Authentication.Token do
 
     apply(module, fun, [conn | args])
     |> verify_creds
-    |> assert_creds
+    |> assert_creds(opts[:error])
   end
 
   defp verify_creds({conn, creds}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
 
-  defp assert_creds({conn, nil}), do: halt_with_error(conn, ~s'{"error":"authentication required"}')
-  defp assert_creds({conn, user_data}), do: assign_user_data(conn, user_data)
+  defp assert_creds({conn, nil}, error), do: halt_with_error(conn, error)
+  defp assert_creds({conn, user_data}, _), do: assign_user_data(conn, user_data)
 end

@@ -2,11 +2,13 @@ defmodule PlugAuth.Authentication.Token.Test do
   use ExUnit.Case, async: true
   use Plug.Test
 
+  @error_msg ~s'{"error":"authentication required"}'
+
   defmodule ParamPlug do
     use Plug.Builder
     import Plug.Conn
 
-    plug PlugAuth.Authentication.Token, source: :params, param: "auth_token"
+    plug PlugAuth.Authentication.Token, source: :params, param: "auth_token", error: ~s'{"error":"authentication required"}'
     plug :index
 
     defp index(conn, _opts), do: send_resp(conn, 200, "Authorized")
@@ -16,7 +18,7 @@ defmodule PlugAuth.Authentication.Token.Test do
     use Plug.Builder
     import Plug.Conn
 
-    plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token"
+    plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token", error: ~s'{"error":"authentication required"}'
     plug :index
 
     defp index(conn, _opts), do: send_resp(conn, 200, "Authorized")
@@ -48,12 +50,12 @@ defmodule PlugAuth.Authentication.Token.Test do
 
   test "request without credentials using header-based auth" do
     conn = call(HeaderPlug, [], [])
-    assert_unauthorized conn, ~s'{"error":"authentication required"}'
+    assert_unauthorized conn, @error_msg
   end
 
   test "request with invalid credentials using header-based auth" do
     conn = call(HeaderPlug, [], [auth_header("invalid_token")])
-    assert_unauthorized conn, ~s'{"error":"authentication required"}'
+    assert_unauthorized conn, @error_msg
   end
 
   test "request with valid credentials using header-based auth" do
@@ -63,12 +65,12 @@ defmodule PlugAuth.Authentication.Token.Test do
 
   test "request without credentials using params-based auth" do
     conn = call(ParamPlug, [], [])
-    assert_unauthorized conn, ~s'{"error":"authentication required"}'
+    assert_unauthorized conn, @error_msg
   end
 
   test "request with invalid credentials using params-based auth" do
     conn = call(ParamPlug, [auth_param("invalid_token")], [])
-    assert_unauthorized conn, ~s'{"error":"authentication required"}'
+    assert_unauthorized conn, @error_msg
   end
 
   test "request with valid credentials using params-based auth" do
