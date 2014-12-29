@@ -2,29 +2,41 @@ defmodule PlugAuth.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :plug_auth,
-     version: "0.0.1",
-     elixir: "~> 1.0",
-     deps: deps]
+    [
+      app: :plug_auth,
+      version: "0.0.1",
+      elixir: "~> 1.0",
+      deps: deps,
+      package: package,
+      description: description,
+      docs: [readme: true, main: "README"]]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
-    [mod: {PlugAuth, []}, applications: [:logger, :cowboy, :plug]]
+    [ 
+      applications: [:logger, :cowboy, :plug],
+      mod: {PlugAuth, []}
+    ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type `mix help deps` for more examples and options
   defp deps do
-    [{:cowboy, "~> 1.0.0"}, {:plug, "~> 0.9.0"}]
+    [
+      {:cowboy, "~> 1.0.0"}, 
+      {:plug, "~> 0.9.0"},
+      {:earmark, "~> 0.1", only: :docs},
+      {:ex_doc, "~> 0.6", only: :docs},
+    ]
+  end
+
+  defp description do
+    "A collection of authentication-related plugs"
+  end
+
+  defp package do
+    [
+      contributors: ["Michele Balistreri"],
+      licenses: ["ISC"],
+      links: %{"GitHub" => "https://github.com/briksoftware/plug_auth"}
+    ]
   end
 end
