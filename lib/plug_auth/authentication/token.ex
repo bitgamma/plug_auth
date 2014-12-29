@@ -37,6 +37,13 @@ defmodule PlugAuth.Authentication.Token do
     PlugAuth.CredentialStore.delete_credentials(token)
   end
 
+  @doc """
+    Utility function to generate a random authentication token.
+  """
+  def generate_token() do
+    :crypto.strong_rand_bytes(16) |> Base.url_encode64
+  end
+
   def init(opts) do
     param = Keyword.get(opts, :param)
     source = Keyword.fetch!(opts, :source) |> convert_source(param)
