@@ -54,7 +54,7 @@ To perform authentication, you can add either plug to your pipeline.
 ```elixir
 plug PlugAuth.Authentication.Basic, realm: "Secret"
 ```
-The realm parameter is optional and can be omitted. By default "Restricted Area" will be used as realm name. You can also pass the error parameter, which should be a string and will be returned instead of the default message "HTTP Authentication Required"
+The realm parameter is optional and can be omitted. By default "Restricted Area" will be used as realm name. You can also pass the error parameter, which should be a string and will be sent instead of the default message "HTTP Authentication Required" on authentication failure (with status code 401).
 
 ### Token Example
 ```elixir
@@ -63,7 +63,16 @@ plug PlugAuth.Authentication.Token, source: :params, param: "auth_token", error:
 The error parameter is optional and is treated as in the example above. The source parameter defines how to retrieve the token from the connection. Currently, the three acceptable values are: :params, :header and :session. Their name is self-explainatory. The param parameter defines the name of the parameter/HTTP header/session key where the token is stored. This should cover most cases, but if retrieving the token is more complex than that, you can pass a tuple for the source parameter. The tuple must be in the form `{MyModule, :my_function, ["param1", 42]}`. The function must accept a connection as its first argument (which will be injected as the head of the given parameter list) and any other number of parameters, which must be given in the third element of the tuple. If no additional arguments are needed, an empty list must be given.
 
 ## Access control
-TBD
+PlugAuth currently provides role-based access control, which can be performed after authentication. You would use it like this
+
+```elixir
+plug PlugAuth.Authentication.Basic, realm: "Secret"
+plug PlugAuth.Access.Role, roles: [:admin, :developer]
+```
+
+In the example above HTTP basic authentication is used, but you could use any other authentication plug as well. The roles parameter specifies which user roles are granted access. On authentication failure the HTTP status code 403 will be sent, together with an error message which can be set using the error parameter (just like in the Authentication examples).
+
+The role of the currently authenticated user, is read from the :authenticated_user assign of the connection. If when adding credentials you passed a map or strucutre as the user data and this map has a "role" key, then everything will work automatically. If your user data is not a map or a structure, or it does not contain the role key, you can implemented the ```PlugAuth.Access.RoleAdapter``` protocol instead.
 
 ## License
 Copyright (c) 2014, Michele Balistreri <michele@briksoftware.com>
