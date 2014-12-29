@@ -26,19 +26,19 @@ defmodule PlugAuth.Authentication.Token do
   end
 
   def init(opts) do
-    source = Keyword.fetch!(opts, :source) |> convert_source
-    param = Keyword.fetch!(opts, :param)
-    %{source: source, param: param}
+    param = Keyword.get(opts, :param)
+    source = Keyword.fetch!(opts, :source) |> convert_source(param)
+    %{source: source}
   end
 
-  defp convert_source(:params), do: fn conn, param -> {conn, conn.params[param]} end
-  defp convert_source(:header), do: fn conn, param -> {conn, get_first_req_header(conn, param)} end
-  defp convert_source(:session), do: fn conn, param -> {conn, get_session(conn, param)} end
-  defp convert_source(fun) when is_function(fun, 2), do: fun
+  defp convert_source(:params, param), do: fn conn -> {conn, conn.params[param]} end
+  defp convert_source(:header, param), do: fn conn -> {conn, get_first_req_header(conn, param)} end
+  defp convert_source(:session, param), do: fn conn -> {conn, get_session(conn, param)} end
+  defp convert_source(fun, _param) when is_function(fun, 1), do: fun
 
   def call(conn, opts) do
     conn
-    |> opts[:source].(opts[:param])
+    |> opts[:source].()
     |> verify_creds
     |> assert_creds
   end
