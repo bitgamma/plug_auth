@@ -2,6 +2,7 @@ defmodule PlugAuth.Authentication.Utils do
   import Plug.Conn
 
   def assign_user_data(conn, user_data), do: assign(conn, :authenticated_user, user_data)
+  def get_authenticated_user(conn), do: conn.assigns[:authenticated_user]
   def halt_with_error(conn, msg \\ "unauthorized") do
     conn 
     |> send_resp(401, msg) 
