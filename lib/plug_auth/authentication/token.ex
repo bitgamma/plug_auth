@@ -14,7 +14,7 @@ defmodule PlugAuth.Authentication.Token do
   @doc """
     Add the credentials for a `token`. `user_data` can be any term but must not be `nil`.
   """
-  def add_credentials(token, user_data \\ []) do
+  def add_credentials(token, user_data) do
     PlugAuth.CredentialStore.put_credentials(token, user_data)
   end
 

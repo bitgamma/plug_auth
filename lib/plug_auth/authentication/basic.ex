@@ -14,7 +14,7 @@ defmodule PlugAuth.Authentication.Basic do
   @doc """
     Add the credentials for a `user` and `password` combination. `user_data` can be any term but must not be `nil`.
   """
-  def add_credentials(user, password, user_data \\ []) do
+  def add_credentials(user, password, user_data) do
     encode_creds(user, password) |> PlugAuth.CredentialStore.put_credentials(user_data)
   end
 
