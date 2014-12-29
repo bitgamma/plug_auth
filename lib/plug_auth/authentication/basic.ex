@@ -18,6 +18,21 @@ defmodule PlugAuth.Authentication.Basic do
     encode_creds(user, password) |> PlugAuth.CredentialStore.put_credentials(user_data)
   end
 
+  @doc """
+    Remove the credentials for a `user` and `password` combination.
+  """
+  def remove_credentials(user, password) do
+    encode_creds(user, password) |> PlugAuth.CredentialStore.delete_credentials
+  end
+
+  @doc """
+    Changes the password for `user` from `old_password` to `new_password`.
+  """
+  def update_credentials(user, old_password, new_password) do
+    user_data = remove_credentials(user, old_password)
+    add_credentials(user, new_password, user_data)
+  end
+
   defp encode_creds(user, password), do: Base.encode64("#{user}:#{password}")
 
   def init(opts) do
