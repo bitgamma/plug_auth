@@ -11,5 +11,5 @@ defmodule PlugAuth.Authentication.Utils do
   def get_first_req_header(conn, header), do: get_req_header(conn, header) |> header_hd
   
   defp header_hd([]), do: nil
-  defp header_hd([head | tail]), do: head
+  defp header_hd([head | _]), do: head
 end
