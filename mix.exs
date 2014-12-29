@@ -9,7 +9,7 @@ defmodule PlugAuth.Mixfile do
       deps: deps,
       package: package,
       description: description,
-      docs: [readme: true, main: "README"]]
+      docs: [readme: "README.md", main: "README"]]
   end
 
   def application do
