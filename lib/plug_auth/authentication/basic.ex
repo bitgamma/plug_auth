@@ -1,8 +1,8 @@
 defmodule PlugAuth.Authentication.Basic do
   @moduledoc """
-    Implements basic HTTP authentication. To use add
+    Implements basic HTTP authentication. To use add:
 
-    plug PlugAuth.Authentication.Basic, realm: "Secret world"
+      plug PlugAuth.Authentication.Basic, realm: "Secret world"
 
     to your pipeline. This module is derived from https://github.com/lexmag/blaguth
   """ 

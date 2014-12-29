@@ -2,19 +2,19 @@ defmodule PlugAuth.Authentication.Token do
   @moduledoc """
     Implements token based authentication. To use add
 
-    plug PlugAuth.Authentication.Token, source: :params, param: "auth_token"
+      plug PlugAuth.Authentication.Token, source: :params, param: "auth_token"
 
     or
 
-    plug PlugAuth.Authentication.Token, source: :session, param: "auth_token"
+      plug PlugAuth.Authentication.Token, source: :session, param: "auth_token"
 
     or
 
-    plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token"    
+      plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token"    
 
     or
 
-    plug PlugAuth.Authentication.Token, source: fn conn -> { conn, my_very_special_retriever(conn)} end
+      plug PlugAuth.Authentication.Token, source: quote do: fn conn -> { conn, my_very_special_retriever(conn)} end
 
     to your pipeline.
   """ 
