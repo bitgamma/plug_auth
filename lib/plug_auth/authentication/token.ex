@@ -1,8 +1,20 @@
 defmodule PlugAuth.Authentication.Token do
   @moduledoc """
-    Implements basic HTTP authentication. To use add
+    Implements token based authentication. To use add
 
     plug PlugAuth.Authentication.Token, source: :params, param: "auth_token"
+
+    or
+
+    plug PlugAuth.Authentication.Token, source: :session, param: "auth_token"
+
+    or
+
+    plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token"    
+
+    or
+
+    plug PlugAuth.Authentication.Token, source: fn conn -> { conn, my_very_special_retriever(conn)} end
 
     to your pipeline.
   """ 
@@ -31,14 +43,16 @@ defmodule PlugAuth.Authentication.Token do
     %{source: source}
   end
 
-  defp convert_source(:params, param), do: fn conn -> {conn, conn.params[param]} end
-  defp convert_source(:header, param), do: fn conn -> {conn, get_first_req_header(conn, param)} end
-  defp convert_source(:session, param), do: fn conn -> {conn, get_session(conn, param)} end
-  defp convert_source(fun, _param) when is_function(fun, 1), do: fun
+  defp convert_source(:params, param), do: quote do: fn conn -> {conn, conn.params[unquote(param)]} end
+  defp convert_source(:header, param), do: quote do: fn conn -> {conn, get_first_req_header(conn, unquote(param))} end
+  defp convert_source(:session, param), do: quote do: fn conn -> {conn, get_session(conn, unquote(param))} end
+  defp convert_source(fun, _param), do: fun
 
   def call(conn, opts) do
+    {fun, _} = Code.eval_quoted(opts[:source])
+
     conn
-    |> opts[:source].()
+    |> fun.()
     |> verify_creds
     |> assert_creds
   end
