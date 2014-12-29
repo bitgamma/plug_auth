@@ -14,7 +14,7 @@ defmodule PlugAuth.Authentication.Token do
 
     or
 
-      plug PlugAuth.Authentication.Token, source: quote do: fn conn -> { conn, my_very_special_retriever(conn)} end
+      plug PlugAuth.Authentication.Token, source: { module, function, ["my_param"]} end
 
     to your pipeline.
   """ 
@@ -50,16 +50,19 @@ defmodule PlugAuth.Authentication.Token do
     %{source: source}
   end
 
-  defp convert_source(:params, param), do: quote do: fn conn -> {conn, conn.params[unquote(param)]} end
-  defp convert_source(:header, param), do: quote do: fn conn -> {conn, get_first_req_header(conn, unquote(param))} end
-  defp convert_source(:session, param), do: quote do: fn conn -> {conn, get_session(conn, unquote(param))} end
-  defp convert_source(fun, _param), do: fun
+  defp convert_source(:params, param), do: {__MODULE__, :get_token_from_params, [param]}
+  defp convert_source(:header, param), do: {__MODULE__, :get_token_from_header, [param]}
+  defp convert_source(:session, param), do: {__MODULE__, :get_token_from_session, [param]}
+  defp convert_source(source = {module, fun, args}, _param) when is_atom(module) and is_atom(fun) and is_list(args), do: source
+
+  def get_token_from_params(conn, param), do: {conn, conn.params[param]}
+  def get_token_from_header(conn, param), do: {conn, get_first_req_header(conn, param)}
+  def get_token_from_session(conn, param), do: {conn, get_session(conn, param)}
 
   def call(conn, opts) do
-    {fun, _} = Code.eval_quoted(opts[:source])
+    {module, fun, args} = opts[:source]
 
-    conn
-    |> fun.()
+    apply(module, fun, [conn | args])
     |> verify_creds
     |> assert_creds
   end
