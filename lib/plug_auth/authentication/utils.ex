@@ -7,4 +7,9 @@ defmodule PlugAuth.Authentication.Utils do
     |> send_resp(401, msg) 
     |> halt
   end
+
+  def get_first_req_header(conn, header), do: get_req_header(conn, header) |> header_hd
+  
+  defp header_hd([]), do: nil
+  defp header_hd([head | tail]), do: head
 end

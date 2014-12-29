@@ -36,21 +36,21 @@ defmodule PlugAuth.Authentication.Basic do
   defp encode_creds(user, password), do: Base.encode64("#{user}:#{password}")
 
   def init(opts) do
-    {realm, _opts} = Keyword.pop(opts, :realm, "Restricted Area")
+    realm = Keyword.get(opts, :realm, "Restricted Area")
     %{realm: realm}
   end
 
   def call(conn, opts) do
     conn
     |> get_auth_header
-    |> decode_creds
+    |> verify_creds
     |> assert_creds(opts[:realm])
   end
 
-  defp get_auth_header(conn), do: {conn, get_req_header(conn, "authorization")}
+  defp get_auth_header(conn), do: {conn, get_first_req_header(conn, "authorization")}
 
-  defp decode_creds({conn, [<< "Basic ", creds::binary >> | _]}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
-  defp decode_creds({conn, _}), do: {conn, nil}
+  defp verify_creds({conn, << "Basic ", creds::binary >>}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
+  defp verify_creds({conn, _}), do: {conn, nil}
 
   defp assert_creds({conn, nil}, realm), do: halt_with_login(conn, realm)
   defp assert_creds({conn, user_data}, _), do: assign_user_data(conn, user_data)
