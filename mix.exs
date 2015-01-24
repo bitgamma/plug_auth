@@ -4,7 +4,7 @@ defmodule PlugAuth.Mixfile do
   def project do
     [
       app: :plug_auth,
-      version: "0.0.1",
+      version: "0.0.2",
       elixir: "~> 1.0",
       deps: deps,
       package: package,
@@ -22,7 +22,7 @@ defmodule PlugAuth.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0.0"}, 
-      {:plug, "~> 0.9.0"},
+      {:plug, "~> 0.10.0"},
       {:earmark, "~> 0.1", only: :docs},
       {:ex_doc, "~> 0.6", only: :docs},
     ]
