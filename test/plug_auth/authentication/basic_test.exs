@@ -19,7 +19,7 @@ defmodule PlugAuth.Authentication.Basic.Test do
 
   defp assert_unauthorized(conn, realm) do
     assert conn.status == 401
-    assert get_resp_header(conn, "Www-Authenticate") == [~s{Basic realm="#{realm}"}]
+    assert get_resp_header(conn, "www-authenticate") == [~s{Basic realm="#{realm}"}]
     refute conn.assigns[:authenticated_user]
   end
 
