@@ -58,7 +58,7 @@ defmodule PlugAuth.Authentication.Basic do
 
   defp halt_with_login(conn, realm, error) do
     conn 
-    |> put_resp_header("Www-Authenticate", ~s{Basic realm="#{realm}"})
+    |> put_resp_header("www-authenticate", ~s{Basic realm="#{realm}"})
     |> halt_with_error(error)
   end
 end
