@@ -18,14 +18,20 @@ defmodule PlugAuth.Authentication.Token.Test do
     use Plug.Builder
     import Plug.Conn
 
-    plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token", error: ~s'{"error":"authentication required"}'
+    plug PlugAuth.Authentication.Token, source: :header, param: "x-auth-token", error: ~s'{"error":"authentication required"}'
     plug :index
 
     defp index(conn, _opts), do: send_resp(conn, 200, "Authorized")
   end
 
-  defp call(plug, params, headers) do
-    conn(:get, "/", params, headers: headers)
+  defp call(plug, params) do
+    conn(:get, "/", params)
+    |> plug.call([])
+  end
+
+  defp call(plug, params, token) do
+    conn(:get, "/", params)
+    |> put_req_header("x-auth-token", token)
     |> plug.call([])
   end
 
@@ -41,7 +47,6 @@ defmodule PlugAuth.Authentication.Token.Test do
     assert conn.assigns[:authenticated_user] == %{role: :admin}
   end
 
-  defp auth_header(creds), do: {"X-Auth-Token", creds}
   defp auth_param(creds), do: {"auth_token", creds}
 
   setup do
@@ -49,32 +54,32 @@ defmodule PlugAuth.Authentication.Token.Test do
   end
 
   test "request without credentials using header-based auth" do
-    conn = call(HeaderPlug, [], [])
+    conn = call(HeaderPlug, [])
     assert_unauthorized conn, @error_msg
   end
 
   test "request with invalid credentials using header-based auth" do
-    conn = call(HeaderPlug, [], [auth_header("invalid_token")])
+    conn = call(HeaderPlug, [], "invalid_token")
     assert_unauthorized conn, @error_msg
   end
 
   test "request with valid credentials using header-based auth" do
-    conn = call(HeaderPlug, [], [auth_header("secret_token")])
+    conn = call(HeaderPlug, [], "secret_token")
     assert_authorized conn, "Authorized"
   end
 
   test "request without credentials using params-based auth" do
-    conn = call(ParamPlug, [], [])
+    conn = call(ParamPlug, [])
     assert_unauthorized conn, @error_msg
   end
 
   test "request with invalid credentials using params-based auth" do
-    conn = call(ParamPlug, [auth_param("invalid_token")], [])
+    conn = call(ParamPlug, [auth_param("invalid_token")])
     assert_unauthorized conn, @error_msg
   end
 
   test "request with valid credentials using params-based auth" do
-    conn = call(ParamPlug, [auth_param("secret_token")], [])
+    conn = call(ParamPlug, [auth_param("secret_token")])
     assert_authorized conn, "Authorized"
   end
 end

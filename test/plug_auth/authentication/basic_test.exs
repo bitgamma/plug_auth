@@ -13,13 +13,14 @@ defmodule PlugAuth.Authentication.Basic.Test do
   end
 
   defp call(plug, headers) do
-    conn(:get, "/", [], headers: headers)
+    conn(:get, "/", [])
+    |> put_req_header("authorization", headers)
     |> plug.call([])
   end
 
   defp assert_unauthorized(conn, realm) do
     assert conn.status == 401
-    assert get_resp_header(conn, "Www-Authenticate") == [~s{Basic realm="#{realm}"}]
+    assert get_resp_header(conn, "www-authenticate") == [~s{Basic realm="#{realm}"}]
     refute conn.assigns[:authenticated_user]
   end
 
@@ -30,7 +31,7 @@ defmodule PlugAuth.Authentication.Basic.Test do
   end
 
   defp auth_header(creds) do
-    {"authorization", "Basic #{Base.encode64(creds)}"}
+    "Basic #{Base.encode64(creds)}"
   end
 
   setup do
@@ -38,32 +39,32 @@ defmodule PlugAuth.Authentication.Basic.Test do
   end
 
   test "request without credentials" do
-    conn = call(TestPlug, [])
-    assert_unauthorized conn, "Secret"
+    connection = conn(:get, "/", []) |> TestPlug.call([])
+    assert_unauthorized connection, "Secret"
   end
 
   test "request with invalid user" do
-    conn = call(TestPlug, [auth_header("Hacker:SecretPass")])
+    conn = call(TestPlug, auth_header("Hacker:SecretPass"))
     assert_unauthorized conn, "Secret"
   end
 
   test "request with invalid password" do
-    conn = call(TestPlug, [auth_header("Admin:ASecretPass")])
+    conn = call(TestPlug, auth_header("Admin:ASecretPass"))
     assert_unauthorized conn, "Secret"
   end
 
   test "request with valid credentials" do
-    conn = call(TestPlug, [auth_header("Admin:SecretPass")])
+    conn = call(TestPlug, auth_header("Admin:SecretPass"))
     assert_authorized conn, "Authorized"
   end
 
   test "request with malformed credentials" do
-    conn = call(TestPlug, [{"authorization", "Basic Zm9)"}])
+    conn = call(TestPlug, "Basic Zm9)")
     assert_unauthorized conn, "Secret"
   end
 
   test "request with wrong scheme" do
-    conn = call(TestPlug, [{"authorization", "Bearer #{Base.encode64("Admin:SecretPass")}"}])
+    conn = call(TestPlug, "Bearer #{Base.encode64("Admin:SecretPass")}")
     assert_unauthorized conn, "Secret"
   end
 end
