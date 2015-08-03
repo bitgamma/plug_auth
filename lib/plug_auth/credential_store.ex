@@ -1,4 +1,6 @@
 defmodule PlugAuth.CredentialStore do
+  @behaviour PlugAuth.CredentialBehaviour
+  
   @doc """
   Starts a new credentials store.
   """
@@ -18,7 +20,7 @@ defmodule PlugAuth.CredentialStore do
   """
   def put_credentials(credentials, user_data) do
     Agent.update(__MODULE__, &HashDict.put(&1, credentials, user_data))
-  end  
+  end
 
   @doc """
   Deletes `credentials` from the store.
