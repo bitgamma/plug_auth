@@ -5,5 +5,5 @@ defmodule PlugAuth.CredentialBehaviour do
 
   defcallback put_credentials(HashDict.t, any) :: any
 
-  defcallback delete_credentials(HashDic.t) :: any
+  defcallback delete_credentials(HashDict.t) :: any
 end
