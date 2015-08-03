@@ -5,11 +5,16 @@ defmodule PlugAuth.Authentication.Basic do
       plug PlugAuth.Authentication.Basic, realm: "Secret world"
 
     to your pipeline. This module is derived from https://github.com/lexmag/blaguth
-  """ 
+  """
 
   @behaviour Plug
   import Plug.Conn
   import PlugAuth.Authentication.Utils
+
+  def init(opts) do
+    credential_store = Keyword.get(opts, :store) || PlugAuth.CredentialStore
+    %{store: credential_store}
+  end
 
   @doc """
     Add the credentials for a `user` and `password` combination. `user_data` can be any term but must not be `nil`.
@@ -57,7 +62,7 @@ defmodule PlugAuth.Authentication.Basic do
   defp assert_creds({conn, user_data}, _, _), do: assign_user_data(conn, user_data)
 
   defp halt_with_login(conn, realm, error) do
-    conn 
+    conn
     |> put_resp_header("www-authenticate", ~s{Basic realm="#{realm}"})
     |> halt_with_error(error)
   end
