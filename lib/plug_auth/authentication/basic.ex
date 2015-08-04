@@ -11,11 +11,6 @@ defmodule PlugAuth.Authentication.Basic do
   import Plug.Conn
   import PlugAuth.Authentication.Utils
 
-  def init(opts) do
-    credential_store = Keyword.get(opts, :store) || PlugAuth.CredentialStore
-    %{store: credential_store}
-  end
-
   @doc """
     Add the credentials for a `user` and `password` combination. `user_data` can be any term but must not be `nil`.
   """
@@ -43,20 +38,22 @@ defmodule PlugAuth.Authentication.Basic do
   def init(opts) do
     realm = Keyword.get(opts, :realm, "Restricted Area")
     error = Keyword.get(opts, :error, "HTTP Authentication Required")
-    %{realm: realm, error: error}
+    store = Keyword.get(opts, :store, PlugAuth.CredentialStore)
+    %{realm: realm, error: error, store: store}
   end
 
   def call(conn, opts) do
     conn
     |> get_auth_header
-    |> verify_creds
+    |> verify_creds(opts[:store])
     |> assert_creds(opts[:realm], opts[:error])
   end
 
   defp get_auth_header(conn), do: {conn, get_first_req_header(conn, "authorization")}
 
-  defp verify_creds({conn, << "Basic ", creds::binary >>}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
-  defp verify_creds({conn, _}), do: {conn, nil}
+  defp verify_creds({conn, << "Basic ", creds::binary >>}, store), do: {conn, store.get_user_data(creds)}
+  defp verify_creds({conn, << "Basic ", creds::binary >>}, _), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
+  defp verify_creds({conn, _}, _), do: {conn, nil}
 
   defp assert_creds({conn, nil}, realm, error), do: halt_with_login(conn, realm, error)
   defp assert_creds({conn, user_data}, _, _), do: assign_user_data(conn, user_data)
