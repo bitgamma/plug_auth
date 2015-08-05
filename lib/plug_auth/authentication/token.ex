@@ -34,7 +34,7 @@ defmodule PlugAuth.Authentication.Token do
     param = Keyword.get(opts, :param)
     source = Keyword.fetch!(opts, :source) |> convert_source(param)
     error = Keyword.get(opts, :error, "HTTP Authentication Required")
-    store = Keyword.get(opts, :store, PlugAuth.CredentialStore)
+    store = Keyword.get(opts, :store, PlugAuth.CredentialStore.Agent)
     %{source: source, error: error, store: store}
   end
 

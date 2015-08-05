@@ -9,7 +9,7 @@ defmodule PlugAuth.Supervisor do
     import Supervisor.Spec
 
     children = [
-      worker(PlugAuth.CredentialStore, [])
+      worker(PlugAuth.CredentialStore.Agent, [])
     ]
 
     supervise(children, strategy: :one_for_one)

@@ -19,7 +19,7 @@ defmodule PlugAuth.Authentication.Basic do
   def init(opts) do
     realm = Keyword.get(opts, :realm, "Restricted Area")
     error = Keyword.get(opts, :error, "HTTP Authentication Required")
-    store = Keyword.get(opts, :store, PlugAuth.CredentialStore)
+    store = Keyword.get(opts, :store, PlugAuth.CredentialStore.Agent)
     %{realm: realm, error: error, store: store}
   end
 

@@ -50,7 +50,7 @@ defmodule PlugAuth.Authentication.Token.Test do
   defp auth_param(creds), do: {"auth_token", creds}
 
   setup do
-    PlugAuth.CredentialStore.put_credentials("secret_token", %{role: :admin})
+    PlugAuth.CredentialStore.Agent.put_credentials("secret_token", %{role: :admin})
   end
 
   test "request without credentials using header-based auth" do
