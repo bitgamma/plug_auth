@@ -10,14 +10,14 @@ defmodule PlugAuth.Authentication.Token do
 
     or
 
-      plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token"    
+      plug PlugAuth.Authentication.Token, source: :header, param: "X-Auth-Token"
 
     or
 
       plug PlugAuth.Authentication.Token, source: { module, function, ["my_param"]} end
 
     to your pipeline.
-  """ 
+  """
 
   @behaviour Plug
   import Plug.Conn
