@@ -31,16 +31,17 @@ Currently two authentication methods are supported: HTTP Basic and Token-based. 
 
 ### HTTP Basic Example
 ```elixir
-PlugAuth.Authentication.Basic.add_credentials("Admin", "SecretPass", %{role: :admin})
+creds = PlugAuth.Authentication.Basic.encode_credentials("Admin", "SecretPass")
+PlugAuth.CredentialStore.Agent.put_credentials(creds, %{role: :admin})
 ```
 
 ### Token Example
 ```elixir
 token = PlugAuth.Authentication.Token.generate_token
-PlugAuth.Authentication.Token.add_credentials(token, %{role: :admin})
+PlugAuth.CredentialStore.Agent.put_credentials(token, %{role: :admin})
 ```
 
-The last argument in both cases can be any term, except nil. On succesful authentication it will be stored by the authentication plug in the assign map of the connection with the :authenticated_user atom as key. You can retrieve it using 
+The last argument in both cases can be any term, except nil. On succesful authentication it will be stored by the authentication plug in the assign map of the connection with the :authenticated_user atom as key. You can retrieve it using
 
 ```elixir
 PlugAuth.Authentication.Utils.get_authenticated_user(conn)
