@@ -35,7 +35,7 @@ defmodule PlugAuth.Authentication.Basic.Test do
   end
 
   setup do
-    PlugAuth.Authentication.Basic.add_credentials("Admin", "SecretPass", %{role: :admin})
+    PlugAuth.Authentication.Basic.encode_credentials("Admin", "SecretPass") |> PlugAuth.CredentialStore.put_credentials(%{role: :admin})
   end
 
   test "request without credentials" do

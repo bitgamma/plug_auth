@@ -24,20 +24,6 @@ defmodule PlugAuth.Authentication.Token do
   import PlugAuth.Authentication.Utils
 
   @doc """
-    Add the credentials for a `token`. `user_data` can be any term but must not be `nil`.
-  """
-  def add_credentials(token, user_data) do
-    PlugAuth.CredentialStore.put_credentials(token, user_data)
-  end
-
-  @doc """
-    Remove the credentials for a `token`.
-  """
-  def remove_credentials(token) do
-    PlugAuth.CredentialStore.delete_credentials(token)
-  end
-
-  @doc """
     Utility function to generate a random authentication token.
   """
   def generate_token() do
@@ -48,7 +34,8 @@ defmodule PlugAuth.Authentication.Token do
     param = Keyword.get(opts, :param)
     source = Keyword.fetch!(opts, :source) |> convert_source(param)
     error = Keyword.get(opts, :error, "HTTP Authentication Required")
-    %{source: source, error: error}
+    store = Keyword.get(opts, :store, PlugAuth.CredentialStore)
+    %{source: source, error: error, store: store}
   end
 
   defp convert_source(:params, param), do: {__MODULE__, :get_token_from_params, [param]}
@@ -64,11 +51,11 @@ defmodule PlugAuth.Authentication.Token do
     {module, fun, args} = opts[:source]
 
     apply(module, fun, [conn | args])
-    |> verify_creds
+    |> verify_creds(opts[:store])
     |> assert_creds(opts[:error])
   end
 
-  defp verify_creds({conn, creds}), do: {conn, PlugAuth.CredentialStore.get_user_data(creds)}
+  defp verify_creds({conn, creds}, store), do: {conn, store.get_user_data(creds)}
 
   defp assert_creds({conn, nil}, error), do: halt_with_error(conn, error)
   defp assert_creds({conn, user_data}, _), do: assign_user_data(conn, user_data)
