@@ -9,10 +9,6 @@ defmodule PlugAuth.Authentication.BasicWithStore.Test do
       valid? = (key == Base.encode64("Admin:SecretPass"))
       if valid?, do: %{role: :admin}, else: nil
     end
-
-    def put_credentials(_key, _value), do: :ok
-
-    def delete_credentials(_key), do: %{role: :admin}
   end
 
   defmodule TestPlug do
