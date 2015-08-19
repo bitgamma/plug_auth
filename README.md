@@ -76,7 +76,7 @@ In the example above HTTP basic authentication is used, but you could use any ot
 The role of the currently authenticated user, is read from the :authenticated_user assign of the connection. If when adding credentials you passed a map or strucutre as the user data and this map has a "role" key, then everything will work automatically. If your user data is not a map or a structure, or it does not contain the role key, you can implemented the ```PlugAuth.Access.RoleAdapter``` protocol instead.
 
 ## License
-Copyright (c) 2014, Michele Balistreri <michele@briksoftware.com>
+Copyright (c) 2014, Bitgamma OÜ <opensource@bitgamma.com>
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

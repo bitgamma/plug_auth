@@ -36,7 +36,7 @@ defmodule PlugAuth.Mixfile do
     [
       contributors: ["Michele Balistreri"],
       licenses: ["ISC"],
-      links: %{"GitHub" => "https://github.com/briksoftware/plug_auth"}
+      links: %{"GitHub" => "https://github.com/bitgamma/plug_auth"}
     ]
   end
 end
