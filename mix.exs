@@ -34,7 +34,7 @@ defmodule PlugAuth.Mixfile do
 
   defp package do
     [
-      contributors: ["Michele Balistreri"],
+      maintainers: ["Michele Balistreri"],
       licenses: ["ISC"],
       links: %{"GitHub" => "https://github.com/bitgamma/plug_auth"}
     ]
