@@ -63,6 +63,31 @@ plug PlugAuth.Authentication.Token, source: :params, param: "auth_token", error:
 ```
 The error parameter is optional and is treated as in the example above. The source parameter defines how to retrieve the token from the connection. Currently, the three acceptable values are: :params, :header and :session. Their name is self-explainatory. The param parameter defines the name of the parameter/HTTP header/session key where the token is stored. This should cover most cases, but if retrieving the token is more complex than that, you can pass a tuple for the source parameter. The tuple must be in the form `{MyModule, :my_function, ["param1", 42]}`. The function must accept a connection as its first argument (which will be injected as the head of the given parameter list) and any other number of parameters, which must be given in the third element of the tuple. If no additional arguments are needed, an empty list must be given.
 
+### Custom Credential Store
+```elixir
+plug PlugAuth.Authentication.Basic, realm: "Secret", store: MyApp.MyCredentialStore
+```
+
+```elixir
+defmodule MyApp.MyCredentialStore do
+  @behaviour PlugAuth.CredentialStore
+
+  def get_user_data(_credentials) do
+    :joe
+  end
+```
+
+By default, `PlugAuth.CredentialStore.Agent` is a bare `GenServer` interface, thus no
+state persistence is provided between application restarts.
+
+A custom credentials store is a module implementing `PlugAuth.CredentialStore`
+behaviour, which effectively narrows down to one function: `get_user_data/1`.
+The returned value must be anything but `nil` for the authentication to be
+considered successful and for the data to appear in connection assigns.
+
+In order to use a custom module, a `store` option must be passed along with 
+other Plug initialization parameters, as shown in the example above.
+
 ## Access control
 PlugAuth currently provides role-based access control, which can be performed after authentication. You would use it like this
 
