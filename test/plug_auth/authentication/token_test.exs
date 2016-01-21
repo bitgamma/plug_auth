@@ -82,4 +82,14 @@ defmodule PlugAuth.Authentication.Token.Test do
     conn = call(ParamPlug, [auth_param("secret_token")])
     assert_authorized conn, "Authorized"
   end
+
+  test "can skip authentication internally" do
+    conn =
+      conn(:get, "/", [])
+      |> assign(:authenticated_user, %{role: :admin})
+      |> ParamPlug.call([])
+
+    assert_authorized conn, "Authorized"
+    refute conn.halted
+  end
 end

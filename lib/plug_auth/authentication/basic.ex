@@ -25,10 +25,14 @@ defmodule PlugAuth.Authentication.Basic do
   end
 
   def call(conn, opts) do
-    conn
-    |> get_auth_header
-    |> verify_creds(opts[:store])
-    |> assert_creds(opts[:realm], opts[:error], opts[:assign_key])
+    if get_authenticated_user(conn) do
+      conn
+    else
+      conn
+      |> get_auth_header
+      |> verify_creds(opts[:store])
+      |> assert_creds(opts[:realm], opts[:error], opts[:assign_key])
+    end
   end
 
   defp get_auth_header(conn), do: {conn, get_first_req_header(conn, "authorization")}

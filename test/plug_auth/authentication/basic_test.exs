@@ -67,4 +67,14 @@ defmodule PlugAuth.Authentication.Basic.Test do
     conn = call(TestPlug, "Bearer #{Base.encode64("Admin:SecretPass")}")
     assert_unauthorized conn, "Secret"
   end
+
+  test "can skip authentication internally" do
+    conn =
+      conn(:get, "/", [])
+      |> assign(:authenticated_user, %{role: :admin})
+      |> TestPlug.call([])
+
+    assert_authorized conn, "Authorized"
+    refute conn.halted
+  end
 end

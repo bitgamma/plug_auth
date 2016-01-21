@@ -49,11 +49,15 @@ defmodule PlugAuth.Authentication.Token do
   def get_token_from_session(conn, param), do: {conn, get_session(conn, param)}
 
   def call(conn, opts) do
-    {module, fun, args} = opts[:source]
+    if get_authenticated_user(conn) do
+      conn
+    else
+      {module, fun, args} = opts[:source]
 
-    apply(module, fun, [conn | args])
-    |> verify_creds(opts[:store])
-    |> assert_creds(opts[:error], opts[:assign_key])
+      apply(module, fun, [conn | args])
+      |> verify_creds(opts[:store])
+      |> assert_creds(opts[:error], opts[:assign_key])
+    end
   end
 
   defp verify_creds({conn, creds}, store), do: {conn, store.get_user_data(creds)}
