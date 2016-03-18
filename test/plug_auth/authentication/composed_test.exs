@@ -78,6 +78,4 @@ defmodule PlugAuth.Authentication.Composed.Test do
   defp auth_header(creds) do
     "Basic #{Base.encode64(creds)}"
   end
-
-  defp auth_param(creds), do: {"auth_token", creds}
 end
