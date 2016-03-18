@@ -35,7 +35,8 @@ defmodule PlugAuth.Authentication.Token do
     source = Keyword.fetch!(opts, :source) |> convert_source(param)
     error = Keyword.get(opts, :error, "HTTP Authentication Required")
     store = Keyword.get(opts, :store, PlugAuth.CredentialStore.Agent)
-    %{source: source, error: error, store: store}
+    assign_key = Keyword.get(opts, :assign_key, :authenticated_user)
+    %{source: source, error: error, store: store, assign_key: assign_key}
   end
 
   defp convert_source(:params, param), do: {__MODULE__, :get_token_from_params, [param]}
@@ -52,11 +53,11 @@ defmodule PlugAuth.Authentication.Token do
 
     apply(module, fun, [conn | args])
     |> verify_creds(opts[:store])
-    |> assert_creds(opts[:error])
+    |> assert_creds(opts[:error], opts[:assign_key])
   end
 
   defp verify_creds({conn, creds}, store), do: {conn, store.get_user_data(creds)}
 
-  defp assert_creds({conn, nil}, error), do: halt_with_error(conn, error)
-  defp assert_creds({conn, user_data}, _), do: assign_user_data(conn, user_data)
+  defp assert_creds({conn, nil}, error, _), do: halt_with_error(conn, error)
+  defp assert_creds({conn, user_data}, _, key), do: assign_user_data(conn, user_data, key)
 end
