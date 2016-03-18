@@ -4,7 +4,7 @@ defmodule PlugAuth.Mixfile do
   def project do
     [
       app: :plug_auth,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: "~> 1.1",
       deps: deps,
       package: package,
