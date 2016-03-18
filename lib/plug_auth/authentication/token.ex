@@ -49,7 +49,7 @@ defmodule PlugAuth.Authentication.Token do
   def get_token_from_session(conn, param), do: {conn, get_session(conn, param)}
 
   def call(conn, opts) do
-    if get_authenticated_user(conn) do
+    if get_authenticated_user(conn, opts[:assign_key]) do
       conn
     else
       {module, fun, args} = opts[:source]

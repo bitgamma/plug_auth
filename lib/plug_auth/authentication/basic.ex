@@ -25,7 +25,7 @@ defmodule PlugAuth.Authentication.Basic do
   end
 
   def call(conn, opts) do
-    if get_authenticated_user(conn) do
+    if get_authenticated_user(conn, opts[:assign_key]) do
       conn
     else
       conn
