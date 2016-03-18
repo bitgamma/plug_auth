@@ -20,14 +20,15 @@ defmodule PlugAuth.Authentication.Basic do
     realm = Keyword.get(opts, :realm, "Restricted Area")
     error = Keyword.get(opts, :error, "HTTP Authentication Required")
     store = Keyword.get(opts, :store, PlugAuth.CredentialStore.Agent)
-    %{realm: realm, error: error, store: store}
+    assign_key = Keyword.get(opts, :assign_key, :authenticated_user)
+    %{realm: realm, error: error, store: store, assign_key: assign_key}
   end
 
   def call(conn, opts) do
     conn
     |> get_auth_header
     |> verify_creds(opts[:store])
-    |> assert_creds(opts[:realm], opts[:error])
+    |> assert_creds(opts[:realm], opts[:error], opts[:assign_key])
   end
 
   defp get_auth_header(conn), do: {conn, get_first_req_header(conn, "authorization")}
@@ -35,8 +36,8 @@ defmodule PlugAuth.Authentication.Basic do
   defp verify_creds({conn, << "Basic ", creds::binary >>}, store), do: {conn, store.get_user_data(creds)}
   defp verify_creds({conn, _}, _), do: {conn, nil}
 
-  defp assert_creds({conn, nil}, realm, error), do: halt_with_login(conn, realm, error)
-  defp assert_creds({conn, user_data}, _, _), do: assign_user_data(conn, user_data)
+  defp assert_creds({conn, nil}, realm, error, _), do: halt_with_login(conn, realm, error)
+  defp assert_creds({conn, user_data}, _, _, key), do: assign_user_data(conn, user_data, key)
 
   defp halt_with_login(conn, realm, error) do
     conn
