@@ -1,11 +1,11 @@
 defmodule PlugAuth.Access.Role do
   @moduledoc """
     Implements role-based access control. Authentication must occur before access control.
-    
+
     ## Example:
       plug PlugAuth.Authentication.Basic, realm: "Secret world"
       plug PlugAuth.Access.Role, roles: [:admin]
-  """ 
+  """
 
   @behaviour Plug
   import Plug.Conn
@@ -34,9 +34,13 @@ defmodule PlugAuth.Access.Role do
     end
   end
 
+  def halt_forbidden(conn, error) when is_function(error) do
+    error.(conn)
+    |> halt
+  end
   defp halt_forbidden(conn, error) do
     conn
-    |> send_resp(403, error) 
+    |> send_resp(403, error)
     |> halt
   end
 end
