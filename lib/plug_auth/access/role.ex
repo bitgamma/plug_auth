@@ -34,7 +34,7 @@ defmodule PlugAuth.Access.Role do
     end
   end
 
-  def halt_forbidden(conn, error) when is_function(error) do
+  defp halt_forbidden(conn, error) when is_function(error) do
     error.(conn)
     |> halt
   end
