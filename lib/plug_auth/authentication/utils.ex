@@ -9,11 +9,12 @@ defmodule PlugAuth.Authentication.Utils do
     conn.assigns[key]
   end
 
+  def halt_with_error(conn, error \\ "unauthorized")
   def halt_with_error(conn, error) when is_function(error) do
     error.(conn)
     |> halt
   end
-  def halt_with_error(conn, error \\ "unauthorized") do
+  def halt_with_error(conn, error) do
     conn
     |> send_resp(401, error)
     |> halt
