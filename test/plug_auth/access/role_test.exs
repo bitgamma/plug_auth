@@ -12,6 +12,13 @@ defmodule PlugAuth.Access.Role.Test do
     defp index(conn, _opts), do: send_resp(conn, 200, "Authorized")
   end
 
+  defmodule ErrorHandlerPlug do
+    use Plug.Builder
+    import Plug.Conn
+
+    plug PlugAuth.Access.Role, roles: [:admin], error: &PlugAuth.TestHelpers.handler/1
+  end
+
   defp call(plug, role) do
     conn(:get, "/", [])
     |> assign(:authenticated_user, %{role: role})
@@ -30,6 +37,12 @@ defmodule PlugAuth.Access.Role.Test do
     assert conn.assigns[:authenticated_role] == :admin
   end
 
+  defp assert_error_handler_called(conn) do
+    assert conn.status == 418
+    assert conn.resp_body == "I'm a teapot"
+    assert conn.assigns[:error_handler_called]
+  end
+
   test "request with no role" do
     conn = call(TestPlug, nil)
     assert_unauthorized conn, "forbidden"
@@ -43,5 +56,15 @@ defmodule PlugAuth.Access.Role.Test do
   test "request with valid credentials" do
     conn = call(TestPlug, :admin)
     assert_authorized conn, "Authorized"
+  end
+
+  test "request with no role using error handler" do
+    call(ErrorHandlerPlug, nil)
+    |> assert_error_handler_called
+  end
+
+  test "request with invalid role using error handler" do
+    call(ErrorHandlerPlug, :guest)
+    |> assert_error_handler_called
   end
 end
