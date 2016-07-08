@@ -56,7 +56,7 @@ To perform authentication, you can add either plug to your pipeline.
 ```elixir
 plug PlugAuth.Authentication.Basic, realm: "Secret"
 ```
-The realm parameter is optional and can be omitted. By default "Restricted Area" will be used as realm name. You can also pass the error parameter, which should be a string and will be sent instead of the default message "HTTP Authentication Required" on authentication failure (with status code 401).
+The realm parameter is optional and can be omitted. By default "Restricted Area" will be used as realm name. You can also pass the error parameter, which should be a string or a function. If a string is passed, that string will be sent instead of the default message "HTTP Authentication Required" on authentication failure (with status code 401). If a function is passed, that function will be called with one argument, `conn`.
 
 ### Token Example
 ```elixir
@@ -129,7 +129,28 @@ defmodule BasicWithTokenPlug do
 end
 ```
 
+## Redirect Example
+You may wish to redirect unauthorized users to a login page. This can be achieved by passing a function to the error parameter of a plug. This works for `PlugAuth.Authentication`'s `Basic` and `Token` as well as `PlugAuth.Access.Role`. The function cannot be private. The following example demonstrates a simple implementation of this:
 
+```elixir
+defmodule RedirectPlug do
+  use Plug.Builder
+  import Plug.Conn
+
+  plug PlugAuth.Authentication.Basic,
+    realm: "Secret",
+    error: &RedirectPlug.unauthorized/1
+  plug :index
+
+  @doc """
+    Redirect an unauthorized user to the login page.
+  """
+  def unauthorized(conn), do: conn |> redirect(to: "/login")
+
+  defp index(conn, _opts), do: send_resp(conn, 200, "Authorized")
+end
+
+```
 
 ## License
 Copyright (c) 2014, Bitgamma OÜ <opensource@bitgamma.com>
