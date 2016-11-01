@@ -99,13 +99,13 @@ plug PlugAuth.Access.Role, roles: [:admin, :developer]
 
 In the example above HTTP basic authentication is used, but you could use any other authentication plug as well. The roles parameter specifies which user roles are granted access. On authentication failure the HTTP status code 403 will be sent, together with an error message which can be set using the error parameter (just like in the Authentication examples).
 
-The role of the currently authenticated user, is read from the :authenticated_user assign of the connection. If when adding credentials you passed a map or strucutre as the user data and this map has a "role" key, then everything will work automatically. If your user data is not a map or a structure, or it does not contain the role key, you can implemented the ```PlugAuth.Access.RoleAdapter``` protocol instead.
+The role of the currently authenticated user, is read from the :authenticated_user assign of the connection. If when adding credentials you passed a map or structure as the user data and this map has a :role, "role", :roles or "roles" key, then everything will work automatically. If your user data is not a map or a structure, or it does not contain the role key, you can implemented the ```PlugAuth.Access.RolesAdapter``` protocol instead.
 
 ## Plugs Composition Example
 
 For situations when you need both Basic Auth and Token Auth subsequently, you
 are free to compose them into a single plug.
-To differentiate between the authentication levels, you should parametrise
+To differentiate between the authentication levels, you should parametrize
 both of the plugs with `assign_key`. This designates the key name that will be used
 in `Plug.Conn` assigns to store the data obtained from `CredentialStore`.
 

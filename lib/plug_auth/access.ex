@@ -1,11 +1,15 @@
 defmodule PlugAuth.Access do
-  defprotocol RoleAdapter do
-    @doc "Returns the role associated to `data` as atom"
+  defprotocol RolesAdapter do
+    @doc "Returns the roles associated to `data` as atom"
     @fallback_to_any true
-    def get_role(data)
+    def get_roles(data)
   end
 
-  defimpl RoleAdapter, for: Any do
-    def get_role(map) when is_map(map), do: map[:role]
+  defimpl RolesAdapter, for: Any do
+    def get_roles(%{:role => role}), do: [role]
+    def get_roles(%{"role" => role}), do: [role]
+    def get_roles(%{:roles => roles}), do: roles
+    def get_roles(%{"roles" => roles}), do: roles
+    def get_roles(_), do: nil
   end
 end

@@ -18,17 +18,19 @@ defmodule PlugAuth.Access.Role do
 
   def call(conn, opts) do
     conn
-    |> get_user
-    |> get_role
+    |> get_user()
+    |> get_roles()
     |> assert_role(opts[:roles], opts[:error])
   end
 
   defp get_user(conn), do: {conn, PlugAuth.Authentication.Utils.get_authenticated_user(conn)}
-  defp get_role({conn, nil}), do: {conn, nil}
-  defp get_role({conn, user}), do: {conn, PlugAuth.Access.RoleAdapter.get_role(user)}
-  defp assert_role({conn, role}, roles, error) do
-    if role in roles do
-      assign(conn, :authenticated_role, role)
+  defp get_roles({conn, nil}), do: {conn, nil}
+  defp get_roles({conn, user}), do: {conn, PlugAuth.Access.RolesAdapter.get_roles(user)}
+  defp assert_role({conn, user_roles}, roles, error) do
+    found_roles = Enum.filter(user_roles, fn(role) -> role in roles end)
+
+    if found_roles != [] do
+      assign(conn, :authenticated_roles, found_roles)
     else
       halt_forbidden(conn, error)
     end

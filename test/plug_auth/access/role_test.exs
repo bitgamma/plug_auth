@@ -28,13 +28,13 @@ defmodule PlugAuth.Access.Role.Test do
   defp assert_unauthorized(conn, content) do
     assert conn.status == 403
     assert conn.resp_body == content
-    refute conn.assigns[:authenticated_role]
+    refute conn.assigns[:authenticated_roles]
   end
 
   defp assert_authorized(conn, content) do
     assert conn.status == 200
     assert conn.resp_body == content
-    assert conn.assigns[:authenticated_role] == :admin
+    assert conn.assigns[:authenticated_roles] == [:admin]
   end
 
   defp assert_error_handler_called(conn) do
